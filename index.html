@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Universo de Mamá - Miller y Hermanos</title>
+    <style>
+        :root {
+            --space-bg: radial-gradient(circle at center, #2d0036 0%, #1a001e 50%, #000000 100%);
+            --pink-glow: #ff007f;
+            --purple-glow: #9d00ff;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: var(--space-bg);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: white;
+        }
+
+        /* Fondo de Galaxia Animada */
+        #canvas-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0f0014, #26002b, #050008);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Estrellas, Flores y Corazones Flotantes */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: float linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) rotate(0deg); }
+            100% { transform: translateY(-10vh) rotate(360deg); }
+        }
+
+        /* Contenedor de Planetas */
+        .universe-viewport {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            perspective: 1000px;
+        }
+
+        .sun {
+            width: 150px; height: 150px;
+            background: radial-gradient(circle, #fff, #ff99cc, #ff007f);
+            border-radius: 50%;
+            box-shadow: 0 0 80px var(--pink-glow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.5s;
+        }
+
+        .sun:hover { transform: scale(1.2); }
+
+        .planet-orbit {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rotate linear infinite;
+        }
+
+        .planet {
+            position: absolute;
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+            transition: 0.3s;
+        }
+
+        .planet:hover { transform: scale(1.4); border: 2px solid white; }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mensajes Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a001e, #3d0046);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--pink-glow);
+            max-width: 500px;
+            animation: zoomIn 0.5s ease;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .modal-content img {
+            width: 100%; max-height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--pink-glow);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div class="universe-viewport">
+        <div class="sun" onclick="showMsg('Para la Reina de este Hogar', 'URL_FOTO_MAMA', 'Tú eres el sol que mantiene a estos 5 planetas girando con amor.')">
+            MAMÁ
+        </div>
+
+        <!-- Órbitas y Planetas (Miller, Rodrigo, Yamil, Melanny, Mathias) -->
+        <div class="planet-orbit" style="width: 300px; height: 300px; animation-duration: 10s;">
+            <div class="planet" onclick="showMsg('Miller', 'URL_TU_FOTO', 'Gracias por enseñarme que con esfuerzo todo se logra. ¡Te amo!')" style="background: #4e54c8; left: 115px; top: -35px;">MILLER</div>
+        </div>
+
+        <div class="planet-orbit" style="width: 450px; height: 450px; animation-duration: 15s;">
+            <div class="planet" onclick="showMsg('Rodrigo', 'URL_FOTO_RODRIGO', 'Por tu paciencia infinita y por ser mi guía. ¡Feliz día!')" style="background: #ff416c; left: 190px; top: -35px;">RODRIGO</div>
+        </div>
+
+        <div class="planet-orbit" style="width: 600px; height: 600px; animation-duration: 20s;">
+            <div class="planet" onclick="showMsg('Yamil', 'URL_FOTO_YAMIL', 'Eres la mejor madre que la vida me pudo dar.')" style="background: #00b4db; left: 265px; top: -35px;">YAMIL</div>
+        </div>
+
+        <div class="planet-orbit" style="width: 750px; height: 750px; animation-duration: 25s;">
+            <div class="planet" onclick="showMsg('Melanny', 'URL_FOTO_MELANNY', 'Gracias por ser mi mejor amiga y mi ejemplo a seguir.')" style="background: #f093fb; left: 340px; top: -35px;">MELANNY</div>
+        </div>
+
+        <div class="planet-orbit" style="width: 900px; height: 900px; animation-duration: 30s;">
+            <div class="planet" onclick="showMsg('Mathias', 'URL_FOTO_MATHIAS', '¡Te amo mamá! Gracias por cuidarme siempre porque soy el más peque.')" style="background: #00f2fe; left: 415px; top: -35px;">MATHIAS</div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modal-title"></h2>
+            <img id="modal-img" src="" alt="Recuerdo">
+            <p id="modal-text"></p>
+            <button class="close-btn" onclick="closeModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Audio Luis Miguel (Motivos) -->
+    <audio id="bg-music" loop>
+        <source src="URL_DE_TU_ARCHIVO_DE_AUDIO" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Crear partículas flotantes (estrellas, flores, corazones)
+        function createParticles() {
+            const symbols = ['⭐', '🌸', '❤️', '✨', '🌼'];
+            for (let i = 0; i < 50; i++) {
+                let p = document.createElement('div');
+                p.className = 'particle';
+                p.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                p.style.animationDelay = (Math.random() * 10) + 's';
+                document.body.appendChild(p);
+            }
+        }
+        createParticles();
+
+        function showMsg(title, img, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('modal').style.display = 'flex';
+            // Iniciar música al interactuar (regla de navegadores)
+            document.getElementById('bg-music').play();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
