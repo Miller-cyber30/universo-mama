@@ -3,227 +3,1322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Universo de Mamá - Miller y Hermanos</title>
+    <title>Galaxia Familiar - Día de la Madre ✨</title>
+
+    <!-- ==================== CDN: Three.js & GSAP ==================== -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js">
+    </script>
+
     <style>
         :root {
-            --space-bg: radial-gradient(circle at center, #2d0036 0%, #1a001e 50%, #000000 100%);
-            --pink-glow: #ff007f;
-            --purple-glow: #9d00ff;
+            --bg-deep: #0a0014;
+            --purple-deep: #1a0030;
+            --pink-electric: #ff2d78;
+            --neon-cyan: #00e5ff;
+            --golden: #ffb347;
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --font-elegant: 'Georgia', 'Times New Roman', serif;
+            --font-ui: 'Segoe UI', 'Helvetica Neue', sans-serif;
         }
 
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
             overflow: hidden;
-            background: var(--space-bg);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            color: white;
+            background: var(--bg-deep);
+            font-family: var(--font-ui);
+            cursor: crosshair;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Fondo de Galaxia Animada */
-        #canvas-container {
+        /* ==================== Canvas Container ==================== */
+        #three-canvas {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            background: linear-gradient(45deg, #0f0014, #26002b, #050008);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            inset: 0;
+            z-index: 1;
+            display: block;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* ==================== Hyperdrive Overlay ==================== */
+        #hyperdrive-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: radial-gradient(ellipse at center, #0a0014 0%, #000000 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: all;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #hyperdrive-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #hyperdrive-overlay .streaks {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+        #hyperdrive-overlay .streak {
+            position: absolute;
+            width: 2px;
+            height: 180px;
+            background: linear-gradient(to bottom, transparent, #ff2d78, #ffffff, #00e5ff, transparent);
+            border-radius: 50%;
+            animation: hyperStreak 1.2s linear forwards;
+            opacity: 0;
+            filter: blur(1px);
+        }
+        @keyframes hyperStreak {
+            0% {
+                transform: translateY(-120vh) scaleY(3);
+                opacity: 1;
+            }
+            60% {
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(120vh) scaleY(0.3);
+                opacity: 0;
+            }
+        }
+        #hyperdrive-overlay .welcome-text {
+            font-family: var(--font-elegant);
+            color: #ffffff;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            letter-spacing: 0.15em;
+            text-align: center;
+            z-index: 2;
+            animation: welcomePulse 2s ease-in-out infinite;
+            text-shadow: 0 0 40px #ff2d78, 0 0 80px #9b30ff, 0 0 120px #ff2d78;
+        }
+        @keyframes welcomePulse {
+            0%,
+            100% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.06);
+            }
         }
 
-        /* Estrellas, Flores y Corazones Flotantes */
-        .particle {
+        /* ==================== Floating Elements Container ==================== */
+        #floating-container {
+            position: fixed;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .floating-element {
             position: absolute;
             pointer-events: none;
-            animation: float linear infinite;
-            opacity: 0.8;
+            animation: floatUp var(--dur) linear forwards;
+            font-size: var(--size);
+            opacity: 0;
+            filter: drop-shadow(0 0 6px rgba(255, 45, 120, 0.7));
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            8% {
+                opacity: 0.9;
+            }
+            70% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(var(--drift)) rotate(var(--spin));
+                opacity: 0;
+            }
+        }
+        @keyframes gentleWobble {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(8px);
+            }
+            75% {
+                transform: translateX(-8px);
+            }
         }
 
-        @keyframes float {
-            0% { transform: translateY(110vh) rotate(0deg); }
-            100% { transform: translateY(-10vh) rotate(360deg); }
-        }
-
-        /* Contenedor de Planetas */
-        .universe-viewport {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            perspective: 1000px;
-        }
-
-        .sun {
-            width: 150px; height: 150px;
-            background: radial-gradient(circle, #fff, #ff99cc, #ff007f);
-            border-radius: 50%;
-            box-shadow: 0 0 80px var(--pink-glow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            text-align: center;
-            cursor: pointer;
-            z-index: 10;
-            transition: transform 0.5s;
-        }
-
-        .sun:hover { transform: scale(1.2); }
-
-        .planet-orbit {
-            position: absolute;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: rotate linear infinite;
-        }
-
-        .planet {
-            position: absolute;
-            width: 70px; height: 70px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-            font-weight: bold;
-            box-shadow: 0 0 20px rgba(255,255,255,0.4);
-            transition: 0.3s;
-        }
-
-        .planet:hover { transform: scale(1.4); border: 2px solid white; }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Mensajes Modales */
-        .modal {
-            display: none;
+        /* ==================== HUD Audio Button ==================== */
+        #hud-audio-btn {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            justify-content: center; align-items: center;
-            backdrop-filter: blur(8px);
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a001e, #3d0046);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid var(--pink-glow);
-            max-width: 500px;
-            animation: zoomIn 0.5s ease;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
-        }
-
-        .modal-content img {
-            width: 100%; max-height: 300px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .close-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: var(--pink-glow);
-            border: none;
-            color: white;
-            border-radius: 5px;
+            bottom: 28px;
+            right: 28px;
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1.5px solid var(--glass-border);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+            transition: all 0.35s ease;
+            box-shadow: 0 0 20px rgba(255, 45, 120, 0.25), inset 0 0 8px rgba(255, 255, 255, 0.05);
+            pointer-events: all;
+        }
+        #hud-audio-btn:hover {
+            border-color: #ff2d78;
+            box-shadow: 0 0 35px rgba(255, 45, 120, 0.5), inset 0 0 14px rgba(255, 45, 120, 0.2);
+            transform: scale(1.08);
+        }
+        #hud-audio-btn:active {
+            transform: scale(0.94);
+            transition: transform 0.1s ease;
+        }
+        #hud-audio-btn.muted {
+            opacity: 0.55;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.08);
         }
 
+        /* ==================== Planet Labels (HUD) ==================== */
+        .planet-label {
+            position: fixed;
+            z-index: 4;
+            pointer-events: none;
+            font-family: var(--font-elegant);
+            font-size: 0.8rem;
+            color: #ffffff;
+            text-align: center;
+            text-shadow: 0 0 12px rgba(255, 45, 120, 0.8), 0 0 24px rgba(155, 48, 255, 0.6);
+            transform: translate(-50%, -50%);
+            transition: opacity 0.4s;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        /* ==================== Modal: Glassmorphism Card ==================== */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        #modal-card {
+            background: rgba(20, 5, 35, 0.65);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            padding: clamp(24px, 4vw, 40px);
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6), 0 0 50px rgba(255, 45, 120, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transform: translateY(30px) scale(0.94);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        #modal-overlay.active #modal-card {
+            transform: translateY(0) scale(1);
+        }
+        #modal-card .photo-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            padding: 4px;
+            background: conic-gradient(from 0deg, #ff2d78, #9b30ff, #00e5ff, #ff2d78);
+            animation: ringSpin 4s linear infinite;
+            box-shadow: 0 0 35px rgba(255, 45, 120, 0.55), 0 0 70px rgba(155, 48, 255, 0.35);
+        }
+        @keyframes ringSpin {
+            to {
+                filter: hue-rotate(360deg);
+            }
+        }
+        #modal-card .photo-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #1a0030;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #modal-card .photo-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #modal-card .photo-inner .placeholder-initials {
+            font-family: var(--font-elegant);
+            font-size: 2.5rem;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+        }
+        #modal-card h2 {
+            font-family: var(--font-elegant);
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 18px rgba(255, 45, 120, 0.5);
+        }
+        #modal-card .message {
+            font-family: var(--font-elegant);
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.7;
+            margin: 16px 0 20px;
+            font-style: italic;
+        }
+        #modal-card .close-btn {
+            display: inline-block;
+            padding: 10px 28px;
+            border-radius: 30px;
+            background: rgba(255, 45, 120, 0.2);
+            border: 1px solid rgba(255, 45, 120, 0.5);
+            color: #fff;
+            cursor: pointer;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+        #modal-card .close-btn:hover {
+            background: rgba(255, 45, 120, 0.4);
+            box-shadow: 0 0 25px rgba(255, 45, 120, 0.45);
+        }
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 768px) {
+            #hud-audio-btn {
+                bottom: 16px;
+                right: 16px;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                font-size: 1.2rem;
+            }
+            #modal-card {
+                max-width: 92vw;
+                padding: 20px 18px;
+                border-radius: 22px;
+            }
+            #modal-card .photo-ring {
+                width: 90px;
+                height: 90px;
+            }
+            #modal-card h2 {
+                font-size: 1.4rem;
+            }
+            #modal-card .message {
+                font-size: 0.9rem;
+            }
+            .planet-label {
+                font-size: 0.65rem;
+            }
+        }
+        @media (max-width: 480px) {
+            #modal-card .photo-ring {
+                width: 75px;
+                height: 75px;
+            }
+            #modal-card h2 {
+                font-size: 1.2rem;
+            }
+            #modal-card .message {
+                font-size: 0.82rem;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <!-- ==================== Hyperdrive Intro Overlay ==================== -->
+    <div id="hyperdrive-overlay">
+        <div class="streaks" id="streaks-container"></div>
+        <p class="welcome-text">🌌 Galaxia Familiar 🌌</p>
+    </div>
 
-    <div class="universe-viewport">
-        <div class="sun" onclick="showMsg('Para la Reina de este Hogar', 'URL_FOTO_MAMA', 'Tú eres el sol que mantiene a estos 5 planetas girando con amor.')">
-            MAMÁ
-        </div>
+    <!-- ==================== Three.js Canvas ==================== -->
+    <div id="three-canvas"></div>
 
-        <!-- Órbitas y Planetas (Miller, Rodrigo, Yamil, Melanny, Mathias) -->
-        <div class="planet-orbit" style="width: 300px; height: 300px; animation-duration: 10s;">
-            <div class="planet" onclick="showMsg('Miller', 'URL_TU_FOTO', 'Gracias por enseñarme que con esfuerzo todo se logra. ¡Te amo!')" style="background: #4e54c8; left: 115px; top: -35px;">MILLER</div>
-        </div>
+    <!-- ==================== Floating Elements (Sakura & Hearts) ==================== -->
+    <div id="floating-container"></div>
 
-        <div class="planet-orbit" style="width: 450px; height: 450px; animation-duration: 15s;">
-            <div class="planet" onclick="showMsg('Rodrigo', 'URL_FOTO_RODRIGO', 'Por tu paciencia infinita y por ser mi guía. ¡Feliz día!')" style="background: #ff416c; left: 190px; top: -35px;">RODRIGO</div>
-        </div>
+    <!-- ==================== Planet Labels Container ==================== -->
+    <div id="labels-container"></div>
 
-        <div class="planet-orbit" style="width: 600px; height: 600px; animation-duration: 20s;">
-            <div class="planet" onclick="showMsg('Yamil', 'URL_FOTO_YAMIL', 'Eres la mejor madre que la vida me pudo dar.')" style="background: #00b4db; left: 265px; top: -35px;">YAMIL</div>
-        </div>
+    <!-- ==================== HUD Audio Button ==================== -->
+    <button id="hud-audio-btn" title="Música: Activar / Silenciar" aria-label="Control de audio">
+        🔊
+    </button>
 
-        <div class="planet-orbit" style="width: 750px; height: 750px; animation-duration: 25s;">
-            <div class="planet" onclick="showMsg('Melanny', 'URL_FOTO_MELANNY', 'Gracias por ser mi mejor amiga y mi ejemplo a seguir.')" style="background: #f093fb; left: 340px; top: -35px;">MELANNY</div>
-        </div>
-
-        <div class="planet-orbit" style="width: 900px; height: 900px; animation-duration: 30s;">
-            <div class="planet" onclick="showMsg('Mathias', 'URL_FOTO_MATHIAS', '¡Te amo mamá! Gracias por cuidarme siempre porque soy el más peque.')" style="background: #00f2fe; left: 415px; top: -35px;">MATHIAS</div>
+    <!-- ==================== Modal Overlay ==================== -->
+    <div id="modal-overlay">
+        <div id="modal-card">
+            <div class="photo-ring">
+                <div class="photo-inner" id="modal-photo">
+                    <!--
+                    ⚠️ REEMPLAZAR: Coloca aquí la etiqueta <img> con la foto del hijo.
+                    Ejemplo: <img src="./fotos/miller.jpg" alt="Miller">
+                    -->
+                    <span class="placeholder-initials" id="modal-initials">M</span>
+                </div>
+            </div>
+            <h2 id="modal-name">Miller</h2>
+            <p class="message" id="modal-message">
+                Eres el faro que guía nuestra constelación...
+            </p>
+            <button class="close-btn" id="modal-close-btn">✨ Cerrar ✨</button>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="modal-title"></h2>
-            <img id="modal-img" src="" alt="Recuerdo">
-            <p id="modal-text"></p>
-            <button class="close-btn" onclick="closeModal()">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- Audio Luis Miguel (Motivos) -->
-    <audio id="bg-music" loop>
-        <source src="URL_DE_TU_ARCHIVO_DE_AUDIO" type="audio/mpeg">
+    <!-- ==================== Audio Element (Invisible) ==================== -->
+    <!--
+    ⚠️ REEMPLAZAR: Cambia el 'src' por la ruta de tu archivo de audio.
+    Canciones sugeridas: "Motivos" o "No sé tú" de Luis Miguel.
+    Formatos aceptados: .mp3, .ogg, .wav
+    -->
+    <audio id="bg-audio" loop preload="auto" style="display:none;">
+        <!--
+        <source src="./audio/motivos-luis-miguel.mp3" type="audio/mpeg">
+        -->
+        <!-- Fuente de respaldo silenciosa (placeholder) -->
+        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
 
+    <!-- ==================== SCRIPTS ==================== -->
     <script>
-        // Crear partículas flotantes (estrellas, flores, corazones)
-        function createParticles() {
-            const symbols = ['⭐', '🌸', '❤️', '✨', '🌼'];
-            for (let i = 0; i < 50; i++) {
-                let p = document.createElement('div');
-                p.className = 'particle';
-                p.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-                p.style.left = Math.random() * 100 + 'vw';
-                p.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                p.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                p.style.animationDelay = (Math.random() * 10) + 's';
-                document.body.appendChild(p);
+        (function() {
+            // ============================================================
+            // CONFIGURACIÓN: Datos de los Planetas (Hijos)
+            // ============================================================
+            // ⚠️ REEMPLAZAR: Cambia 'photoUrl' por la ruta real de cada foto.
+            // ⚠️ REEMPLAZAR: Personaliza 'message' con el mensaje deseado.
+            const planetConfig = [{
+                id: 'miller',
+                name: 'Miller',
+                initials: 'M',
+                color: '#4ECDC4', // Teal / Cian
+                size: 0.65,
+                orbitRadius: 3.5,
+                speed: 0.35,
+                photoUrl: null, // ⬅️ EJ: './fotos/miller.jpg'
+                message: 'Eres el primer lucero de nuestra galaxia, Miller. Tu luz marcó el camino y tu fuerza nos mantiene unidos. Mamá te ama infinitamente, hasta el borde del universo y de regreso. 💫'
+            }, {
+                id: 'rodrigo',
+                name: 'Rodrigo',
+                initials: 'R',
+                color: '#2ECC71', // Verde Esmeralda
+                size: 0.58,
+                orbitRadius: 5.0,
+                speed: 0.28,
+                photoUrl: null, // ⬅️ EJ: './fotos/rodrigo.jpg'
+                message: 'Rodrigo, tu energía es como una supernova que ilumina todo a su paso. Eres pasión, coraje y ternura. Mamá se siente tan orgullosa del universo que llevas dentro. 🌟'
+            }, {
+                id: 'yamil',
+                name: 'Yamil',
+                initials: 'Y',
+                color: '#9B59B6', // Púrpura Amatista
+                size: 0.6,
+                orbitRadius: 6.5,
+                speed: 0.23,
+                photoUrl: null, // ⬅️ EJ: './fotos/yamil.jpg'
+                message: 'Yamil, tu alma brilla con la belleza de mil nebulosas. Eres único, creativo y profundo. Mamá celebra cada instante compartido en esta danza cósmica. 🌌'
+            }, {
+                id: 'melanny',
+                name: 'Melanny',
+                initials: 'M',
+                color: '#E91E63', // Rosa Eléctrico
+                size: 0.55,
+                orbitRadius: 8.0,
+                speed: 0.19,
+                photoUrl: null, // ⬅️ EJ: './fotos/melanny.jpg'
+                message: 'Melanny, la estrella más dulce de nuestra constelación. Tu amor ilumina los rincones más oscuros. Eres el orgullo y la ternura hecha persona. Mamá te adora, princesa cósmica. 🌸'
+            }, {
+                id: 'mathias',
+                name: 'Mathias',
+                initials: 'M',
+                color: '#FF9800', // Dorado / Naranja
+                size: 0.42,
+                orbitRadius: 9.8,
+                speed: 0.15,
+                photoUrl: null, // ⬅️ EJ: './fotos/mathias.jpg'
+                message: 'Mathias, el benjamín de nuestra galaxia, el más pequeño pero con el brillo más tierno. Tu curiosidad es infinita como el cosmos. Mamá te cuida desde el centro de su ser. 🌠'
+            }];
+
+            // ============================================================
+            // REFERENCIAS DOM
+            // ============================================================
+            const canvasContainer = document.getElementById('three-canvas');
+            const floatingContainer = document.getElementById('floating-container');
+            const labelsContainer = document.getElementById('labels-container');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalPhoto = document.getElementById('modal-photo');
+            const modalInitials = document.getElementById('modal-initials');
+            const modalName = document.getElementById('modal-name');
+            const modalMessage = document.getElementById('modal-message');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const hudAudioBtn = document.getElementById('hud-audio-btn');
+            const bgAudio = document.getElementById('bg-audio');
+            const hyperdriveOverlay = document.getElementById('hyperdrive-overlay');
+            const streaksContainer = document.getElementById('streaks-container');
+
+            // ============================================================
+            // THREE.JS SETUP
+            // ============================================================
+            const scene = new THREE.Scene();
+
+            // Cámara con perspectiva
+            const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 80);
+            camera.position.set(0, 7, 14);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer con transparencia y antialiasing
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limitar para rendimiento
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            canvasContainer.appendChild(renderer.domElement);
+
+            // ============================================================
+            // ILUMINACIÓN
+            // ============================================================
+            // Luz ambiental suave
+            const ambientLight = new THREE.AmbientLight(0x2a1040, 1.8);
+            scene.add(ambientLight);
+
+            // Luz puntual desde el sol
+            const sunLight = new THREE.PointLight(0xffaa44, 80, 30, 1.5);
+            sunLight.position.set(0, 0, 0);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 512;
+            sunLight.shadow.mapSize.height = 512;
+            sunLight.shadow.camera.near = 0.5;
+            sunLight.shadow.camera.far = 40;
+            sunLight.shadow.bias = -0.0001;
+            scene.add(sunLight);
+
+            // Luz secundaria para relleno
+            const fillLight = new THREE.PointLight(0x6644aa, 25, 20, 2);
+            fillLight.position.set(0, 5, 8);
+            scene.add(fillLight);
+
+            // ============================================================
+            // ESTRELLAS DE FONDO (Sistema de Partículas con Parallax)
+            // ============================================================
+            const starLayers = [];
+            const starLayerDepths = [18, 22, 28, 35]; // Diferentes profundidades para parallax
+            const starCounts = [300, 400, 500, 350];
+
+            starLayerDepths.forEach((depth, layerIndex) => {
+                const count = starCounts[layerIndex];
+                const positions = new Float32Array(count * 3);
+                const colors = new Float32Array(count * 3);
+                const sizes = new Float32Array(count);
+
+                for (let i = 0; i < count; i++) {
+                    // Distribución esférica
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    const r = depth + (Math.random() - 0.5) * 8;
+                    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+                    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                    positions[i * 3 + 2] = r * Math.cos(phi);
+
+                    // Colores variados: blanco, rosa pálido, cian tenue, lavanda
+                    const colorChoice = Math.random();
+                    if (colorChoice < 0.55) {
+                        colors[i * 3] = 0.9 + Math.random() * 0.1;
+                        colors[i * 3 + 1] = 0.85 + Math.random() * 0.15;
+                        colors[i * 3 + 2] = 0.9 + Math.random() * 0.1;
+                    } else if (colorChoice < 0.75) {
+                        colors[i * 3] = 1.0;
+                        colors[i * 3 + 1] = 0.7 + Math.random() * 0.2;
+                        colors[i * 3 + 2] = 0.8 + Math.random() * 0.2;
+                    } else if (colorChoice < 0.9) {
+                        colors[i * 3] = 0.6 + Math.random() * 0.3;
+                        colors[i * 3 + 1] = 0.8 + Math.random() * 0.2;
+                        colors[i * 3 + 2] = 1.0;
+                    } else {
+                        colors[i * 3] = 0.75 + Math.random() * 0.25;
+                        colors[i * 3 + 1] = 0.5 + Math.random() * 0.3;
+                        colors[i * 3 + 2] = 0.9 + Math.random() * 0.1;
+                    }
+
+                    sizes[i] = 0.03 + Math.random() * 0.09;
+                }
+
+                const geom = new THREE.BufferGeometry();
+                geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geom.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+                const mat = new THREE.PointsMaterial({
+                    size: 0.08,
+                    vertexColors: true,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    transparent: true,
+                    opacity: 0.8,
+                    sizeAttenuation: true,
+                });
+
+                const stars = new THREE.Points(geom, mat);
+                stars.userData = { depth: depth, layerIndex: layerIndex };
+                scene.add(stars);
+                starLayers.push(stars);
+            });
+
+            // ============================================================
+            // SOL CENTRAL (Mamá) con Efecto Bloom
+            // ============================================================
+            const sunGroup = new THREE.Group();
+            scene.add(sunGroup);
+
+            // Esfera del sol con textura procedural
+            const sunCanvas = document.createElement('canvas');
+            sunCanvas.width = 256;
+            sunCanvas.height = 256;
+            const ctx = sunCanvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(128, 128, 10, 128, 128, 128);
+            gradient.addColorStop(0, '#ffffff');
+            gradient.addColorStop(0.15, '#ffe8b0');
+            gradient.addColorStop(0.4, '#ffaa44');
+            gradient.addColorStop(0.7, '#ff6622');
+            gradient.addColorStop(0.9, '#cc2200');
+            gradient.addColorStop(1, '#440011');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 256, 256);
+            // Añadir manchas solares simuladas
+            for (let i = 0; i < 12; i++) {
+                ctx.fillStyle = `rgba(255,${140 + Math.random()*80},${20 + Math.random()*40},${0.2 + Math.random()*0.35})`;
+                ctx.beginPath();
+                ctx.arc(60 + Math.random() * 136, 50 + Math.random() * 156, 4 + Math.random() * 18, 0, Math.PI * 2);
+                ctx.fill();
             }
-        }
-        createParticles();
 
-        function showMsg(title, img, text) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-img').src = img;
-            document.getElementById('modal-text').innerText = text;
-            document.getElementById('modal').style.display = 'flex';
-            // Iniciar música al interactuar (regla de navegadores)
-            document.getElementById('bg-music').play();
-        }
+            const sunTexture = new THREE.CanvasTexture(sunCanvas);
+            const sunGeom = new THREE.SphereGeometry(1.2, 64, 64);
+            const sunMat = new THREE.MeshBasicMaterial({
+                map: sunTexture,
+                emissive: new THREE.Color('#ff8833'),
+                emissiveIntensity: 1.8,
+            });
+            const sunMesh = new THREE.Mesh(sunGeom, sunMat);
+            sunMesh.castShadow = false;
+            sunGroup.add(sunMesh);
 
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
+            // Capas de glow (Bloom simulado con sprites)
+            const glowLayers = [];
+            for (let i = 0; i < 5; i++) {
+                const glowCanvas = document.createElement('canvas');
+                glowCanvas.width = 128;
+                glowCanvas.height = 128;
+                const gCtx = glowCanvas.getContext('2d');
+                const gGrad = gCtx.createRadialGradient(64, 64, 0, 64, 64, 64);
+                const alpha = 0.35 - i * 0.06;
+                gGrad.addColorStop(0, `rgba(255,200,100,${alpha})`);
+                gGrad.addColorStop(0.25, `rgba(255,140,50,${alpha * 0.7})`);
+                gGrad.addColorStop(0.55, `rgba(255,60,100,${alpha * 0.3})`);
+                gGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                gCtx.fillStyle = gGrad;
+                gCtx.fillRect(0, 0, 128, 128);
+
+                const glowTex = new THREE.CanvasTexture(glowCanvas);
+                const glowSpriteMat = new THREE.SpriteMaterial({
+                    map: glowTex,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    transparent: true,
+                    opacity: 1,
+                });
+                const glowSprite = new THREE.Sprite(glowSpriteMat);
+                const scale = 4.5 + i * 2.8;
+                glowSprite.scale.set(scale, scale, 1);
+                glowSprite.userData = { baseScale: scale, layer: i };
+                sunGroup.add(glowSprite);
+                glowLayers.push(glowSprite);
+            }
+
+            // ============================================================
+            // LENS FLARE (Sprites a lo largo del vector sol-cámara)
+            // ============================================================
+            const flareGroup = new THREE.Group();
+            scene.add(flareGroup);
+            const flareSprites = [];
+            const flareColors = ['#ffdd88', '#ff9944', '#ff5588', '#88aaff', '#ffcc66'];
+            const flareDistances = [0.3, -0.6, 1.2, -1.8, 2.5];
+
+            flareDistances.forEach((dist, idx) => {
+                const flareCanvas = document.createElement('canvas');
+                flareCanvas.width = 64;
+                flareCanvas.height = 64;
+                const fCtx = flareCanvas.getContext('2d');
+                const fGrad = fCtx.createRadialGradient(32, 32, 2, 32, 32, 32);
+                fGrad.addColorStop(0, flareColors[idx]);
+                fGrad.addColorStop(0.5, flareColors[idx] + '88');
+                fGrad.addColorStop(1, 'transparent');
+                fCtx.fillStyle = fGrad;
+                fCtx.fillRect(0, 0, 64, 64);
+
+                const flareTex = new THREE.CanvasTexture(flareCanvas);
+                const flareMat = new THREE.SpriteMaterial({
+                    map: flareTex,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    transparent: true,
+                    opacity: 0.5 - idx * 0.07,
+                });
+                const flareSprite = new THREE.Sprite(flareMat);
+                flareSprite.scale.set(1.8 + idx * 0.6, 1.8 + idx * 0.6, 1);
+                flareSprite.userData = { offsetDistance: dist };
+                flareGroup.add(flareSprite);
+                flareSprites.push(flareSprite);
+            });
+
+            // ============================================================
+            // PLANETAS Y ÓRBITAS
+            // ============================================================
+            const planets = [];
+            const orbitRings = [];
+            const planetLabelDivs = [];
+
+            planetConfig.forEach((config, index) => {
+                // Grupo del planeta (para orbitar alrededor del sol)
+                const planetGroup = new THREE.Group();
+                planetGroup.userData = {
+                    orbitRadius: config.orbitRadius,
+                    speed: config.speed,
+                    angle: Math.random() * Math.PI * 2, // Ángulo inicial aleatorio
+                    planetConfig: config,
+                    planetIndex: index,
+                };
+                scene.add(planetGroup);
+
+                // Esfera del planeta
+                const planetGeom = new THREE.SphereGeometry(config.size, 48, 48);
+                const planetMat = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color(config.color),
+                    roughness: 0.4,
+                    metalness: 0.3,
+                    emissive: new THREE.Color(config.color),
+                    emissiveIntensity: 0.5,
+                });
+                const planetMesh = new THREE.Mesh(planetGeom, planetMat);
+                planetMesh.castShadow = true;
+                planetMesh.receiveShadow = true;
+                planetMesh.position.set(config.orbitRadius, 0, 0);
+                planetMesh.userData = {
+                    isPlanet: true,
+                    config: config,
+                    planetGroup: planetGroup,
+                };
+                planetGroup.add(planetMesh);
+
+                // Anillo sutil alrededor del planeta
+                const ringGeom = new THREE.TorusGeometry(config.size * 1.35, 0.04, 16, 64);
+                const ringMat = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color(config.color),
+                    roughness: 0.2,
+                    metalness: 0.7,
+                    emissive: new THREE.Color(config.color),
+                    emissiveIntensity: 0.8,
+                });
+                const ringMesh = new THREE.Mesh(ringGeom, ringMat);
+                ringMesh.rotation.x = Math.PI / 2.3;
+                planetMesh.add(ringMesh);
+
+                // Órbita visible (anillo alrededor del sol)
+                const orbitGeom = new THREE.TorusGeometry(config.orbitRadius, 0.025, 8, 180);
+                const orbitMat = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color(config.color),
+                    transparent: true,
+                    opacity: 0.35,
+                    depthWrite: false,
+                });
+                const orbitRing = new THREE.Mesh(orbitGeom, orbitMat);
+                orbitRing.rotation.x = Math.PI / 2;
+                orbitRing.userData = { orbitRadius: config.orbitRadius };
+                scene.add(orbitRing);
+                orbitRings.push(orbitRing);
+
+                // Label HTML para el nombre del planeta
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'planet-label';
+                labelDiv.textContent = config.name;
+                labelDiv.style.color = config.color;
+                labelsContainer.appendChild(labelDiv);
+                planetLabelDivs.push({
+                    div: labelDiv,
+                    planetMesh: planetMesh,
+                    planetGroup: planetGroup,
+                    config: config,
+                });
+
+                planets.push({
+                    group: planetGroup,
+                    mesh: planetMesh,
+                    config: config,
+                    ring: ringMesh,
+                });
+            });
+
+            // ============================================================
+            // RAYCASTER para detección de clicks en planetas
+            // ============================================================
+            const raycaster = new THREE.Raycaster();
+            raycaster.params.Points.threshold = 0.3;
+            raycaster.params.Line = { threshold: 0.2 };
+            const mouse = new THREE.Vector2();
+            let hoveredPlanet = null;
+            let isZoomed = false;
+            let defaultCameraPos = camera.position.clone();
+            let defaultCameraLookAt = new THREE.Vector3(0, 0, 0);
+            let zoomTarget = null;
+
+            function getPlanetIntersections(event) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const allPlanetMeshes = planets.map(p => p.mesh);
+                return raycaster.intersectObjects(allPlanetMeshes, false);
+            }
+
+            // ============================================================
+            // MOUSE TRACKING (Parallax de estrellas + hover)
+            // ============================================================
+            let mouseX = 0,
+                mouseY = 0;
+            let targetMouseX = 0,
+                targetMouseY = 0;
+
+            document.addEventListener('mousemove', (event) => {
+                targetMouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                targetMouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                // Detectar hover sobre planetas
+                if (!isZoomed) {
+                    const intersections = getPlanetIntersections(event);
+                    if (intersections.length > 0) {
+                        const obj = intersections[0].object;
+                        if (obj.userData && obj.userData.isPlanet && hoveredPlanet !== obj) {
+                            // Reset anterior
+                            if (hoveredPlanet) {
+                                hoveredPlanet.material.emissiveIntensity = 0.5;
+                                document.body.style.cursor = 'crosshair';
+                            }
+                            hoveredPlanet = obj;
+                            hoveredPlanet.material.emissiveIntensity = 1.4;
+                            document.body.style.cursor = 'pointer';
+                        }
+                    } else if (hoveredPlanet) {
+                        hoveredPlanet.material.emissiveIntensity = 0.5;
+                        hoveredPlanet = null;
+                        document.body.style.cursor = 'crosshair';
+                    }
+                }
+            });
+
+            // ============================================================
+            // CLICK EN PLANETAS → Zoom + Modal
+            // ============================================================
+            function zoomToPlanet(planetData) {
+                if (isZoomed) return;
+                isZoomed = true;
+                zoomTarget = planetData;
+
+                const planetWorldPos = new THREE.Vector3();
+                planetData.mesh.getWorldPosition(planetWorldPos);
+
+                // Calcular posición de cámara cercana al planeta
+                const dirToCamera = camera.position.clone().sub(planetWorldPos).normalize();
+                const zoomDistance = planetData.config.size * 5 + 2.5;
+                const targetCamPos = planetWorldPos.clone().add(dirToCamera.multiplyScalar(zoomDistance));
+                const targetLookAt = planetWorldPos.clone();
+
+                // Guardar defaults
+                defaultCameraPos = camera.position.clone();
+                defaultCameraLookAt = new THREE.Vector3(0, 0, 0);
+
+                // Animar cámara con GSAP
+                gsap.to(camera.position, {
+                    x: targetCamPos.x,
+                    y: targetCamPos.y,
+                    z: targetCamPos.z,
+                    duration: 1.4,
+                    ease: 'power3.inOut',
+                });
+                gsap.to(
+                    camera,
+                    {
+                        duration: 1.4,
+                        ease: 'power3.inOut',
+                        onUpdate: () => {
+                            camera.lookAt(
+                                targetLookAt.x + (targetCamPos.x - targetLookAt.x) * 0.2,
+                                targetLookAt.y,
+                                targetLookAt.z + (targetCamPos.z - targetLookAt.z) * 0.2
+                            );
+                        },
+                        onComplete: () => {
+                            camera.lookAt(targetLookAt);
+                        },
+                    }
+                );
+
+                // Mostrar modal
+                showModal(planetData.config);
+            }
+
+            function resetZoom() {
+                if (!isZoomed) return;
+                isZoomed = false;
+                zoomTarget = null;
+
+                gsap.to(camera.position, {
+                    x: defaultCameraPos.x,
+                    y: defaultCameraPos.y,
+                    z: defaultCameraPos.z,
+                    duration: 1.3,
+                    ease: 'power2.inOut',
+                    onUpdate: () => {
+                        camera.lookAt(defaultCameraLookAt);
+                    },
+                    onComplete: () => {
+                        camera.lookAt(defaultCameraLookAt);
+                    },
+                });
+
+                hideModal();
+                if (hoveredPlanet) {
+                    hoveredPlanet.material.emissiveIntensity = 0.5;
+                    hoveredPlanet = null;
+                }
+                document.body.style.cursor = 'crosshair';
+            }
+
+            // Event listeners para click
+            renderer.domElement.addEventListener('click', (event) => {
+                if (isZoomed) return;
+                const intersections = getPlanetIntersections(event);
+                if (intersections.length > 0) {
+                    const obj = intersections[0].object;
+                    if (obj.userData && obj.userData.isPlanet && obj.userData.config) {
+                        const matchedPlanet = planets.find(p => p.mesh === obj);
+                        if (matchedPlanet) {
+                            zoomToPlanet(matchedPlanet);
+                        }
+                    }
+                }
+            });
+
+            // Touch para móviles
+            renderer.domElement.addEventListener('touchend', (event) => {
+                if (isZoomed) return;
+                if (event.changedTouches.length === 1) {
+                    const touch = event.changedTouches[0];
+                    // Simular mouse position
+                    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+                    const intersections = getPlanetIntersections(fakeEvent);
+                    if (intersections.length > 0) {
+                        const obj = intersections[0].object;
+                        if (obj.userData && obj.userData.isPlanet && obj.userData.config) {
+                            const matchedPlanet = planets.find(p => p.mesh === obj);
+                            if (matchedPlanet) {
+                                zoomToPlanet(matchedPlanet);
+                            }
+                        }
+                    }
+                }
+            });
+
+            // ============================================================
+            // MODAL MANAGEMENT
+            // ============================================================
+            function showModal(config) {
+                modalName.textContent = config.name;
+                modalMessage.textContent = config.message;
+                modalInitials.textContent = config.initials;
+
+                // Intentar cargar foto si existe
+                if (config.photoUrl) {
+                    const existingImg = modalPhoto.querySelector('img');
+                    if (existingImg) existingImg.remove();
+                    const img = document.createElement('img');
+                    img.src = config.photoUrl;
+                    img.alt = config.name;
+                    img.onerror = () => {
+                        modalInitials.style.display = 'block';
+                        if (img) img.style.display = 'none';
+                    };
+                    img.onload = () => {
+                        modalInitials.style.display = 'none';
+                        img.style.display = 'block';
+                    };
+                    modalPhoto.appendChild(img);
+                    modalInitials.style.display = 'block'; // Por defecto hasta que cargue
+                } else {
+                    // Sin foto: mostrar iniciales
+                    const existingImg = modalPhoto.querySelector('img');
+                    if (existingImg) existingImg.remove();
+                    modalInitials.style.display = 'block';
+                }
+
+                modalOverlay.classList.add('active');
+                document.body.style.cursor = 'default';
+            }
+
+            function hideModal() {
+                modalOverlay.classList.remove('active');
+                document.body.style.cursor = 'crosshair';
+            }
+
+            modalCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                resetZoom();
+            });
+
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    resetZoom();
+                }
+            });
+
+            // Tecla Escape para cerrar
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isZoomed) {
+                    resetZoom();
+                }
+            });
+
+            // ============================================================
+            // AUDIO CONTROL
+            // ============================================================
+            let audioPlaying = false;
+            let audioInitialized = false;
+
+            function initAudio() {
+                if (audioInitialized) return;
+                audioInitialized = true;
+                bgAudio.volume = 0.35;
+                bgAudio.play().then(() => {
+                    audioPlaying = true;
+                    hudAudioBtn.classList.remove('muted');
+                    hudAudioBtn.textContent = '🔊';
+                }).catch(() => {
+                    // Autoplay bloqueado, el usuario debe interactuar
+                    audioPlaying = false;
+                    hudAudioBtn.classList.add('muted');
+                    hudAudioBtn.textContent = '🔇';
+                });
+            }
+
+            hudAudioBtn.addEventListener('click', () => {
+                if (!audioInitialized) {
+                    initAudio();
+                    return;
+                }
+                if (audioPlaying) {
+                    bgAudio.pause();
+                    audioPlaying = false;
+                    hudAudioBtn.classList.add('muted');
+                    hudAudioBtn.textContent = '🔇';
+                } else {
+                    bgAudio.play().then(() => {
+                        audioPlaying = true;
+                        hudAudioBtn.classList.remove('muted');
+                        hudAudioBtn.textContent = '🔊';
+                    }).catch(() => {
+                        audioPlaying = false;
+                    });
+                }
+            });
+
+            // Intentar inicializar audio en la primera interacción del usuario
+            document.addEventListener('click', initAudio, { once: true });
+            document.addEventListener('touchstart', initAudio, { once: true });
+
+            // ============================================================
+            // ELEMENTOS FLOTANTES (Sakuras 🌸 y Corazones ❤️)
+            // ============================================================
+            const floatingEmojis = ['🌸', '💮', '🌺', '❤️', '💖', '💕', '💗', '✨', '🩷', '🌷'];
+            const maxFloatingElements = 22;
+            let activeFloatingElements = 0;
+
+            function spawnFloatingElement() {
+                if (activeFloatingElements >= maxFloatingElements) return;
+                if (isZoomed && activeFloatingElements >= 8) return; // Reducir durante zoom
+
+                const el = document.createElement('span');
+                el.className = 'floating-element';
+                el.textContent = floatingEmojis[Math.floor(Math.random() * floatingEmojis.length)];
+                el.style.left = Math.random() * 92 + '%';
+                el.style.bottom = '-40px';
+                el.style.setProperty('--size', (1.2 + Math.random() * 2.2) + 'rem');
+                el.style.setProperty('--dur', (6 + Math.random() * 10) + 's');
+                el.style.setProperty('--drift', (Math.random() - 0.5) * 120 + 'px');
+                el.style.setProperty('--spin', (Math.random() - 0.5) * 720 + 'deg');
+                el.style.animation = `floatUp var(--dur) linear forwards, gentleWobble ${2 + Math.random() * 3}s ease-in-out infinite`;
+
+                floatingContainer.appendChild(el);
+                activeFloatingElements++;
+
+                // Auto-eliminar al terminar la animación
+                const duration = parseFloat(el.style.getPropertyValue('--dur')) * 1000;
+                setTimeout(() => {
+                    if (el.parentNode) {
+                        el.remove();
+                        activeFloatingElements--;
+                    }
+                }, duration + 300);
+            }
+
+            // Spawn periódico
+            setInterval(() => {
+                if (activeFloatingElements < maxFloatingElements) {
+                    spawnFloatingElement();
+                    // A veces spawnear en ráfagas
+                    if (Math.random() < 0.35) {
+                        setTimeout(() => {
+                            if (activeFloatingElements < maxFloatingElements) spawnFloatingElement();
+                        }, 200 + Math.random() * 600);
+                    }
+                }
+            }, 900 + Math.random() * 1400);
+
+            // Spawn inicial
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => spawnFloatingElement(), i * 300);
+            }
+
+            // ============================================================
+            // HYPERDRIVE INTRO
+            // ============================================================
+            function createHyperdriveStreaks() {
+                const count = 90;
+                const fragment = document.createDocumentFragment();
+                for (let i = 0; i < count; i++) {
+                    const streak = document.createElement('div');
+                    streak.className = 'streak';
+                    streak.style.left = Math.random() * 100 + '%';
+                    streak.style.top = -(Math.random() * 60) + '%';
+                    streak.style.animationDelay = Math.random() * 1.5 + 's';
+                    streak.style.animationDuration = (0.7 + Math.random() * 1.8) + 's';
+                    streak.style.width = (1 + Math.random() * 3) + 'px';
+                    streak.style.height = (60 + Math.random() * 200) + 'px';
+                    const hue = Math.random() < 0.5 ? '255,45,120' : '0,229,255';
+                    streak.style.background =
+                        `linear-gradient(to bottom, transparent, rgba(${hue},0.7), rgba(255,255,255,0.9), rgba(${hue},0.5), transparent)`;
+                    fragment.appendChild(streak);
+                }
+                streaksContainer.appendChild(fragment);
+            }
+
+            function playHyperdrive() {
+                // Verificar si ya se mostró en esta sesión
+                const hasPlayed = sessionStorage.getItem('hyperdrivePlayed');
+                if (hasPlayed === 'true') {
+                    hyperdriveOverlay.style.display = 'none';
+                    return;
+                }
+                sessionStorage.setItem('hyperdrivePlayed', 'true');
+
+                createHyperdriveStreaks();
+
+                // Después de 2.8 segundos, fade out
+                setTimeout(() => {
+                    hyperdriveOverlay.classList.add('fade-out');
+                    // Remover completamente después de la transición
+                    setTimeout(() => {
+                        hyperdriveOverlay.style.display = 'none';
+                    }, 900);
+                }, 2800);
+            }
+
+            // Iniciar hyperdrive
+            playHyperdrive();
+
+            // ============================================================
+            // ANIMATION LOOP
+            // ============================================================
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                const dt = Math.min(clock.getDelta(), 0.1); // Cap delta para evitar saltos
+                const elapsed = performance.now() * 0.001;
+
+                // Suavizado del mouse
+                mouseX += (targetMouseX - mouseX) * 0.04;
+                mouseY += (targetMouseY - mouseY) * 0.04;
+
+                // Parallax de estrellas (rotación sutil de capas)
+                starLayers.forEach((layer, i) => {
+                    const depthFactor = 1 / (starLayerDepths[i] * 0.5);
+                    layer.rotation.y += mouseX * depthFactor * 0.015;
+                    layer.rotation.x += mouseY * depthFactor * 0.012;
+                });
+
+                // Pulsación del sol
+                const pulse = 1 + Math.sin(elapsed * 2.5) * 0.04 + Math.sin(elapsed * 4.7) * 0.02;
+                sunMesh.scale.setScalar(pulse);
+                sunLight.intensity = 80 + Math.sin(elapsed * 2.5) * 6;
+
+                // Animación de capas de glow
+                glowLayers.forEach((sprite, i) => {
+                    const individualPulse = 1 + Math.sin(elapsed * (2.2 + i * 0.5) + i) * (0.06 - i * 0.008);
+                    const s = sprite.userData.baseScale * individualPulse;
+                    sprite.scale.set(s, s, 1);
+                    sprite.material.opacity = 0.7 + Math.sin(elapsed * 3 + i) * 0.2;
+                });
+
+                // Actualizar lens flare
+                const sunWorldPos = new THREE.Vector3(0, 0, 0);
+                sunGroup.getWorldPosition(sunWorldPos);
+                const camToSun = sunWorldPos.clone().sub(camera.position).normalize();
+                flareSprites.forEach((sprite) => {
+                    const offset = sprite.userData.offsetDistance;
+                    const pos = sunWorldPos.clone().add(camToSun.clone().multiplyScalar(offset));
+                    sprite.position.copy(pos);
+                    sprite.material.opacity = 0.38 + Math.sin(elapsed * 1.5 + offset) * 0.12;
+                });
+
+                // Orbitar planetas
+                planets.forEach((planet) => {
+                    const group = planet.group;
+                    const ud = group.userData;
+                    ud.angle += ud.speed * dt;
+                    const x = ud.orbitRadius * Math.cos(ud.angle);
+                    const z = ud.orbitRadius * Math.sin(ud.angle);
+                    planet.mesh.position.set(x, 0, z);
+                    // Rotación del planeta sobre sí mismo
+                    planet.mesh.rotation.y += dt * 0.6;
+                    // Rotación del anillo
+                    if (planet.ring) {
+                        planet.ring.rotation.z += dt * 0.4;
+                    }
+                });
+
+                // Actualizar posición de labels HTML
+                planetLabelDivs.forEach((item) => {
+                    const worldPos = new THREE.Vector3();
+                    item.planetMesh.getWorldPosition(worldPos);
+                    const screenPos = worldPos.clone().project(camera);
+                    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+                    // Solo mostrar si está frente a la cámara
+                    if (screenPos.z < 1 && x > 0 && x < window.innerWidth && y > 0 && y < window
+                        .innerHeight) {
+                        item.div.style.left = x + 'px';
+                        item.div.style.top = (y - 40) + 'px';
+                        item.div.style.opacity = isZoomed ? '0.3' : '0.9';
+                    } else {
+                        item.div.style.opacity = '0';
+                    }
+                });
+
+                // Si está en zoom, mantener cámara mirando al planeta objetivo
+                if (isZoomed && zoomTarget) {
+                    const targetPos = new THREE.Vector3();
+                    zoomTarget.mesh.getWorldPosition(targetPos);
+                    camera.lookAt(targetPos);
+                } else if (!isZoomed) {
+                    // Ligero sway de cámara con el mouse cuando no hay zoom
+                    const swayX = mouseX * 0.8;
+                    const swayY = mouseY * 0.5;
+                    camera.position.x += (defaultCameraPos.x + swayX - camera.position.x) * 0.03;
+                    camera.position.y += (defaultCameraPos.y + swayY - camera.position.y) * 0.03;
+                    camera.lookAt(defaultCameraLookAt);
+                }
+
+                // Rotación orbital suave de los anillos
+                orbitRings.forEach((ring, i) => {
+                    ring.rotation.z += dt * 0.08 * (i + 1) * 0.3;
+                });
+
+                renderer.render(scene, camera);
+            }
+
+            // ============================================================
+            // RESIZE HANDLER
+            // ============================================================
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                defaultCameraPos.set(0, 7, window.innerWidth < 768 ? 18 : 14);
+                if (!isZoomed) {
+                    camera.position.copy(defaultCameraPos);
+                    camera.lookAt(defaultCameraLookAt);
+                }
+            });
+
+            // Ajuste inicial para móviles
+            if (window.innerWidth < 768) {
+                defaultCameraPos.set(0, 7, 18);
+                camera.position.copy(defaultCameraPos);
+                camera.lookAt(defaultCameraLookAt);
+            }
+
+            // ============================================================
+            // INICIAR
+            // ============================================================
+            animate();
+
+            // Log de bienvenida
+            console.log('🌌✨ Galaxia Familiar - Día de la Madre ✨🌌');
+            console.log('👩‍🚀 Mamá es el Sol central. Los 5 planetas son:');
+            planetConfig.forEach(p => console.log(`   🪐 ${p.name} - ${p.color}`));
+            console.log('💡 Haz clic en un planeta para ver su mensaje.');
+            console.log('🎵 Activa la música con el botón HUD (🔊) en la esquina inferior derecha.');
+            console.log('📸 Reemplaza las URLs de las fotos en el array "planetConfig".');
+            console.log('🎧 Reemplaza el src del audio en el elemento <audio> con ID "bg-audio".');
+            console.log('💖 ¡Feliz Día de la Madre! 💖');
+
+        })();
     </script>
 </body>
 </html>
