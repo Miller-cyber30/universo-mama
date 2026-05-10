@@ -396,10 +396,6 @@
         <div id="modal-card">
             <div class="photo-ring">
                 <div class="photo-inner" id="modal-photo">
-                    <!--
-                    ⚠️ REEMPLAZAR: Coloca aquí la etiqueta <img> con la foto del hijo.
-                    Ejemplo: <img src="./fotos/miller.jpg" alt="Miller">
-                    -->
                     <span class="placeholder-initials" id="modal-initials">M</span>
                 </div>
             </div>
@@ -412,17 +408,8 @@
     </div>
 
     <!-- ==================== Audio Element (Invisible) ==================== -->
-    <!--
-    ⚠️ REEMPLAZAR: Cambia el 'src' por la ruta de tu archivo de audio.
-    Canciones sugeridas: "Motivos" o "No sé tú" de Luis Miguel.
-    Formatos aceptados: .mp3, .ogg, .wav
-    -->
     <audio id="bg-audio" loop preload="auto" style="display:none;">
-        <!--
-        <source src="./audio/motivos-luis-miguel.mp3" type="audio/mpeg">
-        -->
-        <!-- Fuente de respaldo silenciosa (placeholder) -->
-        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+        <source src="Motivos.mp3" type="audio/mpeg">
     </audio>
 
     <!-- ==================== SCRIPTS ==================== -->
@@ -431,8 +418,6 @@
             // ============================================================
             // CONFIGURACIÓN: Datos de los Planetas (Hijos)
             // ============================================================
-            // ⚠️ REEMPLAZAR: Cambia 'photoUrl' por la ruta real de cada foto.
-            // ⚠️ REEMPLAZAR: Personaliza 'message' con el mensaje deseado.
             const planetConfig = [{
                 id: 'miller',
                 name: 'Miller',
@@ -441,7 +426,7 @@
                 size: 0.65,
                 orbitRadius: 3.5,
                 speed: 0.35,
-                photoUrl: miller.jpg, // ⬅️ EJ: './fotos/miller.jpg'
+                photoUrl: 'miller.jpg',
                 message: 'Mamá, quizá no siempre entiendo todo lo que hiciste por nosotros, pero cada sacrificio tuyo se convirtió en una oportunidad para nosotros. Gracias por amarnos incluso en tus días más difíciles. 💫'
             }, {
                 id: 'rodrigo',
@@ -451,7 +436,7 @@
                 size: 0.58,
                 orbitRadius: 5.0,
                 speed: 0.28,
-                photoUrl: rodirgo.jpg, // ⬅️ EJ: './fotos/rodrigo.jpg'
+                photoUrl: 'rodrigo.jpg',
                 message: 'Rodrigo, Si hoy somos fuertes, es porque crecimos viendo cómo tú nunca te rendías. Eres el corazón de esta familia y el lugar al que siempre queremos volver. 🌟'
             }, {
                 id: 'yamil',
@@ -461,7 +446,7 @@
                 size: 0.6,
                 orbitRadius: 6.5,
                 speed: 0.23,
-                photoUrl: yamil.jpg, // ⬅️ EJ: './fotos/yamil.jpg'
+                photoUrl: 'yamil.jpg',
                 message: 'Yamil, Mamá, el mundo puede cambiar mil veces, pero hay algo que nunca cambia: tu manera de cuidarnos incluso cuando tú eras quien necesitaba un abrazo. 🌌'
             }, {
                 id: 'melanny',
@@ -471,7 +456,7 @@
                 size: 0.55,
                 orbitRadius: 8.0,
                 speed: 0.19,
-                photoUrl: melanny.jpg, // ⬅️ EJ: './fotos/melanny.jpg'
+                photoUrl: 'melanny.jpg',
                 message: 'Melanny, No existe regalo que alcance para devolverte las noches sin dormir, las preocupaciones silenciosas y el amor infinito que nos diste sin pedir nada a cambio. 🌸'
             }, {
                 id: 'mathias',
@@ -481,7 +466,7 @@
                 size: 0.42,
                 orbitRadius: 9.8,
                 speed: 0.15,
-                photoUrl: mathias.jpg, // ⬅️ EJ: './fotos/mathias.jpg'
+                photoUrl: 'mathias.jpg',
                 message: 'Mathias, Tal vez no te lo decimos todos los días, pero eres la razón de muchos de nuestros mejores recuerdos, nuestras fuerzas y nuestras ganas de seguir adelante. 🌠'
             }];
 
@@ -1314,8 +1299,8 @@
             planetConfig.forEach(p => console.log(`   🪐 ${p.name} - ${p.color}`));
             console.log('💡 Haz clic en un planeta para ver su mensaje.');
             console.log('🎵 Activa la música con el botón HUD (🔊) en la esquina inferior derecha.');
-            console.log('📸 Reemplaza las URLs de las fotos en el array "planetConfig".');
-            console.log('🎧 Reemplaza el src del audio en el elemento <audio> con ID "bg-audio".');
+            console.log('📸 Las fotos se cargan desde la misma carpeta: miller.jpg, rodrigo.jpg, etc.');
+            console.log('🎧 Audio: Motivos.mp3');
             console.log('💖 ¡Feliz Día de la Madre! 💖');
 
         })();
